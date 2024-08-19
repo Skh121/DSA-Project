@@ -4,8 +4,10 @@ import com.formdev.flatlaf.FlatLightLaf;
 import gui.CityMapPanel;
 import gui.DestinationItem;
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -256,33 +258,25 @@ public class Application extends javax.swing.JFrame {
     }//GEN-LAST:event_addToDestinationsMouseClicked
 
     private void startOptimizationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startOptimizationActionPerformed
-          CityMapPanel cityMapPanel = new CityMapPanel(); // Create a new instance of CityMapPanel
-
-    if (!destinationQueue.isEmpty()) {
-        String sourceCity = "Kathmandu"; // Initial source city
-        while (!destinationQueue.isEmpty()) {
-            HashMap<Integer, String> destinationMap = destinationQueue.poll(); // Retrieve and remove the head of the queue
-            String destination = destinationMap.values().iterator().next(); // Get the first value from the map
-
-            // Find the optimal route for each destination and highlight it on the map
-            cityMapPanel.findOptimalRoute(sourceCity, destination);
-            // Update the source city to the last destination
-            sourceCity = destination;
-
-            // Repaint the cityMapPanel after each route is calculated
-            cityMapPanel.revalidate();
-            cityMapPanel.repaint();
-
-            // Optional: Add a slight delay to visually show the route highlight step by step
-            try {
-                Thread.sleep(1000); // 1 second delay
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        CityMapPanel cityMapPanel = new CityMapPanel();
+        if (destinationQueue.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No destinations added for optimization.", "Optimization Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    } else {
-        JOptionPane.showMessageDialog(this, "No destinations available for optimization.", "Warning", JOptionPane.WARNING_MESSAGE);
-    }
+
+        // Get the selected destinations
+        List<String> destinationCities = new ArrayList<>();
+        destinationQueue.forEach(map -> {
+            destinationCities.addAll(map.values());
+        });
+
+        // Ensure the algorithm is selected
+        String selectedAlgo = (String) selectedAlgorithm.getSelectedItem();
+        if (selectedAlgo != null && selectedAlgo.equals("Djkistra's Algorithm")) {
+            cityMapPanel1.findOptimalRoutes(destinationCities);
+        } else {
+            JOptionPane.showMessageDialog(this, "Only Dijkstra's Algorithm is implemented for now.", "Algorithm Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_startOptimizationActionPerformed
 
     private int getMaxDestinationsForVehicle(String vehicle) {

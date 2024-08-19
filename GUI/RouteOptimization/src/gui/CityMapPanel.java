@@ -4,9 +4,8 @@ import algorithm.Dijkstra;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.List;
 
 public class CityMapPanel extends JPanel {
 
@@ -14,16 +13,25 @@ public class CityMapPanel extends JPanel {
     private final Map<String, String[]> connections;
     private final Map<String, Double> distances; // Store distances between cities
     private final Map<String, Integer> cityIndices;
-    private int[] optimalPath; // Store the optimal path here
-    private String optimalPathString; // To hold the string representation of the path
+    private final List<List<int[]>> optimalPaths; // Store the optimal paths for multiple destinations
+    private final Map<List<int[]>, Color> pathColorMap; // Map each set of paths to a color
+    private final List<String> optimalPathStrings; // To hold the string representation of the paths
+
+    private static final Color DEFAULT_PATH_COLOR = new Color(50, 50, 50); // Blackish color
+    private static final Color[] PATH_COLORS = {
+        Color.GREEN, Color.BLUE, Color.RED, Color.MAGENTA, Color.ORANGE
+    }; // Array of colors for different paths
+
+    private int colorIndex = 0; // Index to cycle through PATH_COLORS
 
     public CityMapPanel() {
         this.cities = new HashMap<>();
         this.connections = new HashMap<>();
         this.distances = new HashMap<>();
         this.cityIndices = new HashMap<>();
-        this.optimalPath = new int[0]; // Initialize with an empty path
-        this.optimalPathString = ""; // Initialize with an empty path string
+        this.optimalPaths = new ArrayList<>();
+        this.pathColorMap = new HashMap<>();
+        this.optimalPathStrings = new ArrayList<>();
 
         // Initialize cities and their locations
         cities.put("Kathmandu", new Point(2, 2));
@@ -75,77 +83,82 @@ public class CityMapPanel extends JPanel {
         }
     }
 
-    public void findOptimalRoute(String sourceCity, String destinationCity) {
-        if (!cityIndices.containsKey(sourceCity) || !cityIndices.containsKey(destinationCity)) {
-            JOptionPane.showMessageDialog(this, "Invalid city names!", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+    public void findOptimalRoutes(List<String> destinationCities) {
+    String sourceCity = "Kathmandu";
+    optimalPaths.clear();
+    optimalPathStrings.clear();
+    pathColorMap.clear();
+
+    if (!cityIndices.containsKey(sourceCity)) {
+        JOptionPane.showMessageDialog(this, "Invalid source city!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    int V = cities.size();
+    double[][] graph = new double[V][V];
+
+    // Initialize the graph
+    for (int i = 0; i < V; i++) {
+        Arrays.fill(graph[i], Double.MAX_VALUE);
+    }
+
+    // Fill the graph with distances for direct connections
+    for (Map.Entry<String, Double> entry : distances.entrySet()) {
+        String[] citiesPair = entry.getKey().split("-");
+        if (citiesPair.length == 2) {
+            int city1Index = cityIndices.get(citiesPair[0]);
+            int city2Index = cityIndices.get(citiesPair[1]);
+            graph[city1Index][city2Index] = entry.getValue();
+            graph[city2Index][city1Index] = entry.getValue(); // Ensure bidirectional
+        }
+    }
+
+    // Highlight the optimal paths
+    String currentCity = sourceCity;
+    for (String destinationCity : destinationCities) {
+        if (!cityIndices.containsKey(destinationCity)) {
+            JOptionPane.showMessageDialog(this, "Invalid destination city: " + destinationCity, "Error", JOptionPane.ERROR_MESSAGE);
+            continue;
         }
 
-        int V = cities.size();
-        double[][] graph = new double[V][V];
-
-        // Initialize the graph with Double.MAX_VALUE to represent no direct path
-        for (int i = 0; i < V; i++) {
-            for (int j = 0; j < V; j++) {
-                if (i != j) {
-                    graph[i][j] = Double.MAX_VALUE;
-                }
-            }
-        }
-
-        // Fill the graph with distances for direct connections
-        for (Map.Entry<String, Double> entry : distances.entrySet()) {
-            String[] citiesPair = entry.getKey().split("-");
-            if (citiesPair.length == 2) {
-                String city1 = citiesPair[0];
-                String city2 = citiesPair[1];
-                double distance = entry.getValue();
-                int city1Index = cityIndices.get(city1);
-                int city2Index = cityIndices.get(city2);
-                graph[city1Index][city2Index] = distance;
-                graph[city2Index][city1Index] = distance; // Ensure bidirectional
-            }
-        }
-
-        int sourceIndex = cityIndices.get(sourceCity);
+        int sourceIndex = cityIndices.get(currentCity);
         int destinationIndex = cityIndices.get(destinationCity);
 
-        // Get the optimal path between the source and destination
-        this.optimalPath = Dijkstra.optimizeRoute(graph, sourceIndex, destinationIndex);
-        this.optimalPathString = getPathString(); // Convert the path to a string
+        int[] path = Dijkstra.optimizeRoute(graph, sourceIndex, destinationIndex);
 
-        System.out.println("Optimal Path (Indices): " + java.util.Arrays.toString(optimalPath));
-        System.out.println("Optimal Path (String): " + optimalPathString);
-
-        repaint(); // Trigger a repaint to visualize the path
-    }
-
-    private String getPathString() {
-        if (optimalPath == null || optimalPath.length == 0) {
-            return "No path found";
+        // Ensure the path starts with the current city
+        if (path[0] != sourceIndex) {
+            int[] newPath = new int[path.length + 1];
+            newPath[0] = sourceIndex;
+            System.arraycopy(path, 0, newPath, 1, path.length);
+            path = newPath;
         }
 
-        return cityIndices.entrySet().stream()
-                .filter(entry -> {
-                    for (int i : optimalPath) {
-                        if (entry.getValue() == i) {
-                            return true;
-                        }
-                    }
-                    return false;
-                })
-                .map(Map.Entry::getKey)
-                .collect(Collectors.joining(" -> "));
+        // Add the path and its string representation
+        optimalPaths.add(Arrays.asList(path));
+        optimalPathStrings.add(getPathString(path));
+
+        // Assign a unique color to each path
+        Color pathColor = PATH_COLORS[colorIndex % PATH_COLORS.length];
+        pathColorMap.put(Arrays.asList(path), pathColor);
+        colorIndex++;
+
+        currentCity = destinationCity; // Set next source as current destination
     }
+
+    repaint(); // Trigger a repaint to visualize the paths
+    showPathDetails(); // Show path details in a popup
+}
+
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        
+
         // Set background color
         this.setBackground(new Color(240, 248, 255)); // Alice Blue
 
-        // Define grid size and node radius
+        // Define grid size
         int gridSize = 80;
         int nodeRadius = 15;
 
@@ -173,64 +186,70 @@ public class CityMapPanel extends JPanel {
         });
 
         // Draw connections (edges) between cities
-        g.setColor(Color.BLACK);
+        g.setColor(DEFAULT_PATH_COLOR); // Default color for all paths
         connections.forEach((city1, neighbors) -> {
             for (String city2 : neighbors) {
                 drawConnection(g, city1, city2, gridSize);
             }
         });
-        
-        // Draw highlighted optimal path
-        if (optimalPath != null && optimalPath.length > 1) {
-            g.setColor(Color.GREEN); // Highlighted path color
-            for (int i = 0; i < optimalPath.length - 1; i++) {
-                String fromCity = getCityNameByIndex(optimalPath[i]);
-                String toCity = getCityNameByIndex(optimalPath[i + 1]);
-                drawHighlightedConnection(g, fromCity, toCity, gridSize);
+
+        // Highlight the optimal path if it exists
+        for (Map.Entry<List<int[]>, Color> entry : pathColorMap.entrySet()) {
+            List<int[]> paths = entry.getKey();
+            Color pathColor = entry.getValue();
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setColor(pathColor);
+            g2d.setStroke(new BasicStroke(3)); // Make the path thicker
+
+            for (int[] path : paths) {
+                for (int j = 0; j < path.length - 1; j++) {
+                    String city1 = getCityByIndex(path[j]);
+                    String city2 = getCityByIndex(path[j + 1]);
+                    drawConnection(g2d, city1, city2, 80);
+                }
             }
+            g2d.dispose();
         }
 
         // Print the optimal path as a string only if it is set
-        if (optimalPathString != null && !optimalPathString.isEmpty()) {
+        if (!optimalPathStrings.isEmpty()) {
             g.setColor(Color.BLACK);
-            g.drawString("Optimal Path: " + optimalPathString, 10, getHeight() - 30);
+            int y = getHeight() - 30;
+            int pathCount = 1;
+            for (String path : optimalPathStrings) {
+                g.drawString("Path " + pathCount + ": " + path, 18, y);
+                y -= 20;
+                pathCount++;
+            }
         }
     }
 
     private void drawConnection(Graphics g, String city1, String city2, int gridSize) {
-        Point point1 = cities.get(city1);
-        Point point2 = cities.get(city2);
+        Point p1 = cities.get(city1);
+        Point p2 = cities.get(city2);
 
-        if (point1 != null && point2 != null) {
-            int x1 = point1.x * gridSize + gridSize / 2;
-            int y1 = point1.y * gridSize + gridSize / 2;
-            int x2 = point2.x * gridSize + gridSize / 2;
-            int y2 = point2.y * gridSize + gridSize / 2;
+        if (p1 != null && p2 != null) {
+            int x1 = p1.x * gridSize + gridSize / 2;
+            int y1 = p1.y * gridSize + gridSize / 2;
+            int x2 = p2.x * gridSize + gridSize / 2;
+            int y2 = p2.y * gridSize + gridSize / 2;
 
             g.drawLine(x1, y1, x2, y2);
-            double distance = distances.get(city1 + "-" + city2);
-            g.drawString(String.format("%.1f", distance), (x1 + x2) / 2, (y1 + y2) / 2);
         }
     }
 
-    private void drawHighlightedConnection(Graphics g, String city1, String city2, int gridSize) {
-        Point point1 = cities.get(city1);
-        Point point2 = cities.get(city2);
-
-        if (point1 != null && point2 != null) {
-            int x1 = point1.x * gridSize + gridSize / 2;
-            int y1 = point1.y * gridSize + gridSize / 2;
-            int x2 = point2.x * gridSize + gridSize / 2;
-            int y2 = point2.y * gridSize + gridSize / 2;
-
-            g.setColor(Color.BLUE); // Color for the highlighted path
-            g.drawLine(x1, y1, x2, y2);
-            double distance = distances.get(city1 + "-" + city2);
-            g.drawString(String.format("%.1f", distance), (x1 + x2) / 2, (y1 + y2) / 2);
+    private String getPathString(int[] path) {
+        StringBuilder pathString = new StringBuilder();
+        for (int i = 0; i < path.length; i++) {
+            pathString.append(getCityByIndex(path[i]));
+            if (i < path.length - 1) {
+                pathString.append(" -> ");
+            }
         }
+        return pathString.toString();
     }
 
-    private String getCityNameByIndex(int index) {
+    private String getCityByIndex(int index) {
         for (Map.Entry<String, Integer> entry : cityIndices.entrySet()) {
             if (entry.getValue() == index) {
                 return entry.getKey();
@@ -238,4 +257,27 @@ public class CityMapPanel extends JPanel {
         }
         return null;
     }
+    
+    private void showPathDetails() {
+    if (optimalPathStrings.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "No paths found!", "Information", JOptionPane.INFORMATION_MESSAGE);
+        return;
+    }
+
+    StringBuilder pathDetails = new StringBuilder();
+    for (int i = 0; i < optimalPathStrings.size(); i++) {
+        pathDetails.append("Path ").append(i + 1).append(": ").append(optimalPathStrings.get(i)).append("\n");
+    }
+
+    JTextArea textArea = new JTextArea(10, 30);
+    textArea.setText(pathDetails.toString());
+    textArea.setEditable(false);
+    textArea.setLineWrap(true);
+    textArea.setWrapStyleWord(true);
+    JScrollPane scrollPane = new JScrollPane(textArea);
+    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+    JOptionPane.showMessageDialog(this, scrollPane, "Optimal Paths", JOptionPane.INFORMATION_MESSAGE);
+}
+
 }
