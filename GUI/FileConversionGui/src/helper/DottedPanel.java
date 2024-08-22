@@ -16,7 +16,7 @@ public class DottedPanel extends javax.swing.JPanel {
     
     @Override
     protected void paintComponent(Graphics g) {
-        int gap = 5;
+        int gap = 12;
         int arcWidth = 20;
         int arcHeight = 20;
         super.paintComponent(g);
@@ -26,7 +26,7 @@ public class DottedPanel extends javax.swing.JPanel {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Set the stroke for dotted lines
-        Stroke stroke = new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0, new float[]{5}, 0);
+        Stroke stroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0, new float[]{5}, 0);
         g2d.setStroke(stroke);
 
         // Calculate the dimensions for the dotted rectangle with a gap from the panel's edge
@@ -36,7 +36,7 @@ public class DottedPanel extends javax.swing.JPanel {
         int height = getHeight() - 2 * gap;
 
         // Draw the rounded rectangle
-        g2d.setColor(Color.decode("#396CE8"));
+        g2d.setColor(Color.decode("#1568E2"));
         g2d.drawRoundRect(x, y, width, height, arcWidth, arcHeight);
     }
 

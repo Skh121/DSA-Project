@@ -1,5 +1,7 @@
 package gui;
 
+import java.awt.Dimension;
+
 /**
  *
  * @author shahi
@@ -9,6 +11,7 @@ public class DestinationItem extends javax.swing.JPanel {
     
     public DestinationItem() {
        initComponents();
+       setSize(new Dimension(200,40));
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

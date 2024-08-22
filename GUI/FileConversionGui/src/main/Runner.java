@@ -31,19 +31,12 @@ public class Runner extends javax.swing.JFrame {
         initComponents();
         getContentPane().setBackground(Color.decode("#FFFFFF"));
         setResizable(false);
-        setTitle("File Conversion");
+        setTitle("Image Resizer");
 
         Notifications.getInstance().setJFrame(this);
 
         itemContainer.setLayout(new javax.swing.BoxLayout(itemContainer, javax.swing.BoxLayout.Y_AXIS));
         itemContainer.setBackground(Color.decode("#FFFFFF"));
-
-        selectImage.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                openFileChooser();
-            }
-        });
 
         jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -58,8 +51,6 @@ public class Runner extends javax.swing.JFrame {
                 cancelAllConversions();
             }
         });
-
-        selectImage.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         scrollableItemPane.setBorder(null);
         scrollableItemPane.getViewport().setOpaque(false);
@@ -193,50 +184,55 @@ public class Runner extends javax.swing.JFrame {
 
         selectImage = new helper.DottedPanel();
         uploadImageBackground = new helper.PictureBox();
-        uploadImageText = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
         titleFirst = new javax.swing.JLabel();
         titleSecond = new javax.swing.JLabel();
         scrollableItemPane = new javax.swing.JScrollPane();
         itemContainer = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
 
-        uploadImageBackground.setImage(new javax.swing.ImageIcon(getClass().getResource("/src/upload_image.png"))); // NOI18N
+        uploadImageBackground.setImage(new javax.swing.ImageIcon(getClass().getResource("/src/upload.png"))); // NOI18N
 
-        uploadImageText.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        uploadImageText.setText("upload an image");
+        jButton3.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        jButton3.setText("Browse Files");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout selectImageLayout = new javax.swing.GroupLayout(selectImage);
         selectImage.setLayout(selectImageLayout);
         selectImageLayout.setHorizontalGroup(
             selectImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(selectImageLayout.createSequentialGroup()
-                .addGap(68, 68, 68)
-                .addComponent(uploadImageText)
-                .addContainerGap(68, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectImageLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(uploadImageBackground, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(88, 88, 88))
+                .addContainerGap(125, Short.MAX_VALUE)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(125, 125, 125))
+            .addGroup(selectImageLayout.createSequentialGroup()
+                .addGap(161, 161, 161)
+                .addComponent(uploadImageBackground, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         selectImageLayout.setVerticalGroup(
             selectImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(selectImageLayout.createSequentialGroup()
-                .addGap(45, 45, 45)
-                .addComponent(uploadImageBackground, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(uploadImageText)
-                .addContainerGap(69, Short.MAX_VALUE))
+                .addGap(38, 38, 38)
+                .addComponent(uploadImageBackground, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(38, Short.MAX_VALUE))
         );
 
         titleFirst.setFont(new java.awt.Font("Segoe UI Semibold", 1, 16)); // NOI18N
-        titleFirst.setText("Image Upload");
+        titleFirst.setText("Resize Images In Bulk");
 
         titleSecond.setFont(new java.awt.Font("Segoe UI Emoji", 0, 12)); // NOI18N
-        titleSecond.setText("Effortless Image Resizing, All at Once!");
 
         itemContainer.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -244,7 +240,7 @@ public class Runner extends javax.swing.JFrame {
         itemContainer.setLayout(itemContainerLayout);
         itemContainerLayout.setHorizontalGroup(
             itemContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 314, Short.MAX_VALUE)
+            .addGap(0, 365, Short.MAX_VALUE)
         );
         itemContainerLayout.setVerticalGroup(
             itemContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -253,11 +249,29 @@ public class Runner extends javax.swing.JFrame {
 
         scrollableItemPane.setViewportView(itemContainer);
 
+        jButton1.setBackground(new java.awt.Color(21, 104, 226));
         jButton1.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 14)); // NOI18N
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Convert Now");
+        jButton1.setBorderPainted(false);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 14)); // NOI18N
-        jButton2.setText("Cancel Process");
+        jButton2.setForeground(new java.awt.Color(51, 51, 51));
+        jButton2.setText("Cancel");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel1.setText("Only support .jpg, .png files");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -266,42 +280,62 @@ public class Runner extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(249, 249, 249)
-                        .addComponent(titleFirst))
+                        .addGap(12, 12, 12)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(14, 14, 14))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(selectImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addGap(14, 14, 14)
+                                        .addComponent(titleFirst)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                                .addComponent(titleSecond))
+                            .addComponent(scrollableItemPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(205, 205, 205)
-                        .addComponent(titleSecond))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(28, 28, 28)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(selectImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(20, 20, 20)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(scrollableItemPane, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(28, Short.MAX_VALUE))
+                        .addGap(26, 26, 26)
+                        .addComponent(jLabel1)))
+                .addContainerGap(12, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addComponent(titleFirst)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(titleSecond, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(32, 32, 32)
+                .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(selectImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(scrollableItemPane, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
+                    .addComponent(titleSecond, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(titleFirst)
+                        .addGap(8, 8, 8)
+                        .addComponent(selectImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 0, 0)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                .addComponent(scrollableItemPane, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(24, 24, 24)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(32, 32, 32))
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(24, 24, 24))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        openFileChooser();
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     public static void main(String args[]) {
         FlatLaf.registerCustomDefaultsSource("app.fileconversiongui.theme");
@@ -316,11 +350,12 @@ public class Runner extends javax.swing.JFrame {
     private javax.swing.JPanel itemContainer;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane scrollableItemPane;
     private helper.DottedPanel selectImage;
     private javax.swing.JLabel titleFirst;
     private javax.swing.JLabel titleSecond;
     private helper.PictureBox uploadImageBackground;
-    private javax.swing.JLabel uploadImageText;
     // End of variables declaration//GEN-END:variables
 }

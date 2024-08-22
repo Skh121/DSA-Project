@@ -34,27 +34,30 @@ public class CityMapPanel extends JPanel {
         this.optimalPathStrings = new ArrayList<>();
 
         // Initialize cities and their locations
-        cities.put("Kathmandu", new Point(2, 2));
-        cities.put("Pokhara", new Point(5, 3));
-        cities.put("Lalitpur", new Point(3, 3));
-        cities.put("Biratnagar", new Point(6, 5));
-        cities.put("Bharatpur", new Point(4, 6));
-        cities.put("Janakpur", new Point(2, 5));
-        cities.put("Hetauda", new Point(3, 4));
-        cities.put("Dhangadhi", new Point(6, 6));
-        cities.put("Butwal", new Point(5, 5));
-        cities.put("Nepalgunj", new Point(7, 4));
+        cities.put("Ramechhap", new Point(2, 2));
+        cities.put("Dolakha", new Point(5, 3));
+        cities.put("Kathmandu", new Point(3, 3));
+        cities.put("Sindupalchowk", new Point(6, 5));
+        cities.put("Sindhuli", new Point(4, 6));
+        cities.put("Nuwakot", new Point(2, 5));
+        cities.put("Bhaktapur", new Point(3, 4));
+        cities.put("Dolpa", new Point(6, 6));
+        cities.put("Mustang", new Point(5, 5));
+        cities.put("Biratnagar", new Point(7, 4));
+        cities.put("Kailali", new Point(8, 5));
 
         // Initialize connections between cities
-        connections.put("Kathmandu", new String[]{"Pokhara", "Lalitpur", "Janakpur", "Hetauda"});
-        connections.put("Pokhara", new String[]{"Biratnagar", "Butwal"});
-        connections.put("Lalitpur", new String[]{"Hetauda"});
-        connections.put("Biratnagar", new String[]{"Bharatpur", "Dhangadhi"});
-        connections.put("Bharatpur", new String[]{"Janakpur"});
-        connections.put("Janakpur", new String[]{"Hetauda"});
-        connections.put("Hetauda", new String[]{"Butwal"});
-        connections.put("Dhangadhi", new String[]{"Nepalgunj"});
-        connections.put("Butwal", new String[]{"Nepalgunj"});
+        connections.put("Ramechhap", new String[]{"Dolakha", "Kathmandu", "Nuwakot"});
+        connections.put("Dolakha", new String[]{"Ramechhap", "Kathmandu", "Sindupalchowk"});
+        connections.put("Kathmandu", new String[]{"Ramechhap", "Dolakha", "Bhaktapur", "Sindhuli"});
+        connections.put("Sindupalchowk", new String[]{"Dolakha", "Sindhuli", "Dolpa"});
+        connections.put("Sindhuli", new String[]{"Kathmandu", "Sindupalchowk", "Mustang"});
+        connections.put("Nuwakot", new String[]{"Ramechhap", "Kathmandu", "Bhaktapur"});
+        connections.put("Bhaktapur", new String[]{"Kathmandu", "Nuwakot", "Mustang"});
+        connections.put("Dolpa", new String[]{"Sindupalchowk", "Mustang"});
+        connections.put("Mustang", new String[]{"Sindhuli", "Bhaktapur", "Dolpa"});
+        connections.put("Biratnagar", new String[]{"Kailali", "Mustang"});
+        connections.put("Kailali", new String[]{"Biratnagar"});
 
         // Assign an index to each city for graph representation
         int index = 0;
@@ -84,7 +87,7 @@ public class CityMapPanel extends JPanel {
     }
 
     public void findOptimalRoutes(List<String> destinationCities) {
-    String sourceCity = "Kathmandu";
+    String sourceCity = "Ramechhap";
     optimalPaths.clear();
     optimalPathStrings.clear();
     pathColorMap.clear();
@@ -147,7 +150,6 @@ public class CityMapPanel extends JPanel {
     }
 
     repaint(); // Trigger a repaint to visualize the paths
-    showPathDetails(); // Show path details in a popup
 }
 
 
@@ -156,14 +158,14 @@ public class CityMapPanel extends JPanel {
         super.paintComponent(g);
 
         // Set background color
-        this.setBackground(new Color(240, 248, 255)); // Alice Blue
+        this.setBackground(new Color(255,255, 255)); // Alice Blue
 
         // Define grid size
         int gridSize = 80;
         int nodeRadius = 15;
 
         // Draw the grid
-        g.setColor(Color.LIGHT_GRAY);
+        g.setColor(Color.WHITE);
         for (int i = 0; i < getWidth(); i += gridSize) {
             for (int j = 0; j < getHeight(); j += gridSize) {
                 g.drawRect(i, j, gridSize, gridSize);
@@ -181,7 +183,7 @@ public class CityMapPanel extends JPanel {
             g.drawString(name, x - nodeRadius, y - nodeRadius - 5);
 
             // Draw city node
-            g.setColor(Color.RED);
+            g.setColor(Color.CYAN);
             g.fillOval(x - nodeRadius / 2, y - nodeRadius / 2, nodeRadius, nodeRadius);
         });
 
@@ -214,10 +216,10 @@ public class CityMapPanel extends JPanel {
         // Print the optimal path as a string only if it is set
         if (!optimalPathStrings.isEmpty()) {
             g.setColor(Color.BLACK);
-            int y = getHeight() - 30;
+            int y = getHeight() - 150;
             int pathCount = 1;
             for (String path : optimalPathStrings) {
-                g.drawString("Path " + pathCount + ": " + path, 18, y);
+                g.drawString("Path " + pathCount + ": " + path, 180, y);
                 y -= 20;
                 pathCount++;
             }
@@ -257,27 +259,5 @@ public class CityMapPanel extends JPanel {
         }
         return null;
     }
-    
-    private void showPathDetails() {
-    if (optimalPathStrings.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "No paths found!", "Information", JOptionPane.INFORMATION_MESSAGE);
-        return;
-    }
-
-    StringBuilder pathDetails = new StringBuilder();
-    for (int i = 0; i < optimalPathStrings.size(); i++) {
-        pathDetails.append("Path ").append(i + 1).append(": ").append(optimalPathStrings.get(i)).append("\n");
-    }
-
-    JTextArea textArea = new JTextArea(10, 30);
-    textArea.setText(pathDetails.toString());
-    textArea.setEditable(false);
-    textArea.setLineWrap(true);
-    textArea.setWrapStyleWord(true);
-    JScrollPane scrollPane = new JScrollPane(textArea);
-    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-    JOptionPane.showMessageDialog(this, scrollPane, "Optimal Paths", JOptionPane.INFORMATION_MESSAGE);
-}
 
 }
