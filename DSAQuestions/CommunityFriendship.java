@@ -14,7 +14,7 @@ public class CommunityFriendship {
                 parent[i] = i;
             }
         }
- 
+
         public int find(int x) {
             if (parent[x] != x) {
                 parent[x] = find(parent[x]);  // Path compression

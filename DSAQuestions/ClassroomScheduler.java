@@ -1,95 +1,69 @@
 import java.util.*;
- 
+
 public class ClassroomScheduler {
- 
-    static class Event {
-        int time;
-        int type; // 1 for start, -1 for end
-        int students;
-        int roomIndex;
- 
-        public Event(int time, int type, int students, int roomIndex) {
-            this.time = time;
-            this.type = type;
-            this.students = students;
-            this.roomIndex = roomIndex;
-        }
-    }
- 
-    public static int findBusiestClassroom(int numRooms, int[][] sessions) {
-        List<Event> events = new ArrayList<>();
- 
-        // Convert each class session into start and end events
-        for (int i = 0; i < sessions.length; i++) {
-            int start = sessions[i][0];
-            int end = sessions[i][1];
-            int students = sessions[i][2];
- 
-            // Start event
-            events.add(new Event(start, 1, students, i));
-            // End event
-            events.add(new Event(end, -1, students, i));
-        }
- 
-        // Sort events: primary by time, secondary by type (end events before start events if same time)
-        events.sort((a, b) -> {
-            if (a.time == b.time) {
-                return a.type - b.type;
+
+    public static int mostUtilizedClassroom(int n, int[][] classes) {
+        // Sort classes by start time, then by size (larger first) if start times are equal
+        Arrays.sort(classes, (a, b) -> {
+            if (a[0] != b[0]) {
+                return Integer.compare(a[0], b[0]);
+            } else {
+                return Integer.compare(b[1], a[1]);
             }
-            return a.time - b.time;
         });
- 
-        // Track the number of classes and the current number of students in each room
-        int[] roomClasses = new int[numRooms];
-        int[] roomStudentCount = new int[numRooms];
-        int maxClasses = 0;
-        int busiestRoom = -1;
- 
-        // Process all events
-        for (Event event : events) {
-            if (event.type == 1) { // Start event
-                int roomIndex = -1;
-                int minStudentCount = Integer.MAX_VALUE;
- 
-                // Find the room with the minimum number of students
-                for (int i = 0; i < numRooms; i++) {
-                    if (roomStudentCount[i] < minStudentCount) {
-                        minStudentCount = roomStudentCount[i];
-                        roomIndex = i;
-                    }
-                }
- 
-                // Assign the room to the class
-                roomClasses[roomIndex]++;
-                roomStudentCount[roomIndex] += event.students;
- 
-                // Update max classes if needed
-                if (roomClasses[roomIndex] > maxClasses) {
-                    maxClasses = roomClasses[roomIndex];
-                    busiestRoom = roomIndex;
-                }
-            } else { // End event
-                // Find which room this class was assigned to
-                for (int i = 0; i < numRooms; i++) {
-                    if (roomClasses[i] > 0) {
-                        roomClasses[i]--;
-                        roomStudentCount[i] -= event.students;
-                        break;
-                    }
-                }
+
+        // Priority queue to track when each classroom will be free
+        PriorityQueue<int[]> freeRooms = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
+        // Array to track the number of classes each room has held
+        int[] classCount = new int[n];
+
+        for (int[] cls : classes) {
+            int start = cls[0];
+            int end = cls[1];
+
+            // Free up rooms that have been released before the current class start time
+            while (!freeRooms.isEmpty() && freeRooms.peek()[0] <= start) {
+                int[] room = freeRooms.poll();
+                freeRooms.add(new int[]{start, room[1]});
+                break;
+            }
+
+            if (freeRooms.size() < n) {
+                // There is at least one available room
+                int room = freeRooms.size();
+                freeRooms.add(new int[]{end, room});
+                classCount[room]++;
+            } else {
+                // All rooms are occupied, need to delay the class
+                int[] earliestEndRoom = freeRooms.poll();
+                int room = earliestEndRoom[1];
+                start = earliestEndRoom[0];
+                end = start + (cls[1] - cls[0]);
+                freeRooms.add(new int[]{end, room});
+                classCount[room]++;
             }
         }
- 
-        return busiestRoom;
+
+        // Find the classroom with the maximum number of classes
+        int maxClasses = -1;
+        int maxClassroom = -1;
+        for (int i = 0; i < n; i++) {
+            if (classCount[i] > maxClasses) {
+                maxClasses = classCount[i];
+                maxClassroom = i;
+            }
+        }
+
+        return maxClassroom;
     }
- 
+
     public static void main(String[] args) {
-        int numRooms1 = 2;
-        int[][] sessions1 = {{0, 10, 30}, {1, 5, 20}, {2, 7, 25}, {3, 4, 10}};
-        System.out.println(findBusiestClassroom(numRooms1, sessions1)); // Output: 0
- 
-        int numRooms2 = 3;
-        int[][] sessions2 = {{1, 20, 50}, {2, 10, 40}, {3, 5, 30}, {4, 9, 25}, {6, 8, 20}};
-        System.out.println(findBusiestClassroom(numRooms2, sessions2)); // Output: 1
+        int n1 = 2;
+        int[][] classes1 = {{0, 10}, {1, 5}, {2, 7}, {3, 4}};
+        System.out.println(mostUtilizedClassroom(n1, classes1));  // Output: 0
+
+        int n2 = 3;
+        int[][] classes2 = {{1, 20}, {2, 10}, {3, 5}, {4, 9}, {6, 8}};
+        System.out.println(mostUtilizedClassroom(n2, classes2));  // Output: 1
     }
 }
